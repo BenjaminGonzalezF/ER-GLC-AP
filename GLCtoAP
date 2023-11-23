@@ -1,0 +1,84 @@
+import java.util.*;
+
+public class GLCtoAP {
+
+    // Clase para representar una regla de producción
+    static class ProductionRule {
+        String nonTerminal;
+        String derivation;
+
+        public ProductionRule(String nonTerminal, String derivation) {
+            this.nonTerminal = nonTerminal;
+            this.derivation = derivation;
+        }
+    }
+
+    // Clase para representar un Autómata de Pila
+    static class AutomataDePila {
+        List<String> states;
+        String initialState;
+        String finalState;
+        List<String> inputAlphabet;
+        List<String> stackAlphabet;
+        Map<String, Map<String, String>> transitionTable; // Transiciones
+
+        public AutomataDePila() {
+            states = new ArrayList<>();
+            inputAlphabet = new ArrayList<>();
+            stackAlphabet = new ArrayList<>();
+            transitionTable = new HashMap<>();
+        }
+
+        // Método para agregar una transición
+        public void addTransition(String state, String inputSymbol, String stackSymbol, String newState, String newStackSymbol) {
+            if (!transitionTable.containsKey(state)) {
+                transitionTable.put(state, new HashMap<>());
+            }
+            transitionTable.get(state).put(inputSymbol + "," + stackSymbol, newState + "," + newStackSymbol);
+        }
+
+        // Método para imprimir el AP
+        public void printAutomata() {
+            System.out.println("Estados: " + states);
+            System.out.println("Estado inicial: " + initialState);
+            System.out.println("Estado final: " + finalState);
+            System.out.println("Alfabeto de entrada: " + inputAlphabet);
+            System.out.println("Alfabeto de pila: " + stackAlphabet);
+            System.out.println("Tabla de transiciones: " + transitionTable);
+        }
+    }
+
+    public static void main(String[] args) {
+        // Ejemplo de GLC
+        Set<String> nonTerminals = new HashSet<>(Arrays.asList("<S0>"));
+        Set<String> terminals = new HashSet<>(Arrays.asList("a"));
+        List<ProductionRule> rules = new ArrayList<>();
+        rules.add(new ProductionRule("<S0>", "a"));
+
+        // Convertir GLC a AP
+        AutomataDePila ap = convertToAP(nonTerminals, terminals, rules, "<S0>");
+
+        // Imprimir el AP
+        ap.printAutomata();
+    }
+
+    private static AutomataDePila convertToAP(Set<String> nonTerminals, Set<String> terminals, List<ProductionRule> rules, String startSymbol) {
+        AutomataDePila ap = new AutomataDePila();
+
+        // Configurar el AP basado en la GLC
+        ap.states.add("q0");
+        ap.states.add("q1");
+        ap.initialState = "q0";
+        ap.finalState = "q1";
+        ap.inputAlphabet.addAll(terminals);
+        ap.stackAlphabet.addAll(nonTerminals);
+        ap.stackAlphabet.add("$"); // Símbolo inicial de la pila
+
+        // Asumiendo una estructura simple de la GLC a AP
+        for (ProductionRule rule : rules) {
+            ap.addTransition("q0", rule.derivation, "$", "q1", "$");
+        }
+
+        return ap;
+    }
+}
