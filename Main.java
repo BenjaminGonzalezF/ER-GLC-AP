@@ -1,5 +1,4 @@
 import java.util.*;
-import GLC.*;
 
 public class Main {
     public static void main(String[] args) {
