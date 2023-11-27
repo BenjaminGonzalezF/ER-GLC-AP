@@ -4,6 +4,7 @@ import java.util.Stack;
 public class ERtoGLC {
     ArrayList<String> glc = new ArrayList<>();
     ArrayList<String> noTerminales = new ArrayList<>();
+    ArrayList<String> terminales = new ArrayList<>();
 
     public static void main(String[] args) {
         ERtoGLC erToGLC = new ERtoGLC();
@@ -14,11 +15,9 @@ public class ERtoGLC {
     }
 
     // Se reemplazan los terminales por no terminales agregando las transiciones a
-    // la GLC
+    // la GLC, luego se procesan los pares de operaciones para que cada par sea un
+    // nuevo nodo terminal, así considerar el orden con los parentesis
     public void procesarExpresion(ArrayList<String> expresion) {
-        ArrayList<String> terminales = new ArrayList<>();
-        ArrayList<String> nuevaExpresion = new ArrayList<>();
-
         noTerminales.add("S0");
         glc.add("S0 -> S1");
 
@@ -27,18 +26,10 @@ public class ERtoGLC {
             if (!esOperador(c) && !c.equals(")") && !c.equals("(")) {
                 String noTerminalNuevo = "S" + noTerminales.size();
                 noTerminales.add(noTerminalNuevo);
-                nuevaExpresion.add(noTerminalNuevo);
                 expresion.set(i, noTerminalNuevo);
                 glc.add(noTerminalNuevo + " -> " + c);
-            } else {
-                nuevaExpresion.add(c);
             }
         }
-        /*
-         * System.out.println(glc);
-         * System.out.println(noTerminales);
-         * System.out.println(nuevaExpresion);
-         */
 
         while (expresion.size() > 1) {
             if (expresion.contains("(")) {
@@ -52,6 +43,10 @@ public class ERtoGLC {
         System.out.println(glc);
     }
 
+    // Cuando encuentra un parentesis abierto pregunta si el siguiente parentesis
+    // cerrado esta en 2 posiciones siguientes,
+    // si es asi, elimina ambos parentesis, para eliminar las sentencias:
+    // "(SimboloNoTerminal)"
     private ArrayList<String> eliminarParentesis(ArrayList<String> expresion) {
         for (int i = 0; i < expresion.size(); i++) {
             if (expresion.get(i).equals("(")) {
@@ -67,6 +62,8 @@ public class ERtoGLC {
         return expresion;
     }
 
+    // Recorre la expresion y si encuentra estre patron: noTerminal operador
+    // noTerminal opera, en el caso de Kleene se opera con un solo no terminal
     private ArrayList<String> operarParejas(ArrayList<String> expresion) {
         Stack<String> pilaNoTerminales = new Stack<>();
         Stack<String> pilaOperadores = new Stack<>();
@@ -115,6 +112,9 @@ public class ERtoGLC {
         return nuevaExpresion;
     }
 
+    // En el caso que se genere un nuevo simbolo no terminal producto de una
+    // operacion, se reemplazan los simbolos no terminales asociados a la operacion
+    // por el resultante
     private ArrayList<String> actualizarExpresion(ArrayList<String> expresion, String noTerminalInical, String operador,
             String nuevoNoTerminal) {
 
@@ -132,13 +132,12 @@ public class ERtoGLC {
 
     }
 
+    // Comprueba si el simbolo es operador
     public boolean esOperador(String c) {
         return c.equals("|") || c.equals(".") || c.equals("*");
     }
 
-    private void buscarTerminal() {
-    }
-
+    // Crea la produccion de la GLC dependiendo del operador
     public void aplicarOperacion(String terminal1, String terminal2, String operador, String noTerminalNuevo) {
         switch (operador) {
             case ".":
@@ -155,6 +154,7 @@ public class ERtoGLC {
         }
     }
 
+    // Transforma la expresion (String)a una lista de Strings
     private static ArrayList<String> transformarALista(String expresion) {
         ArrayList<String> expresionLista = new ArrayList<>();
         for (int i = 0; i < expresion.length(); i++) {
