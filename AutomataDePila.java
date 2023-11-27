@@ -7,22 +7,34 @@ public class AutomataDePila {
     String finalState;
     List<String> inputAlphabet;
     List<String> stackAlphabet;
-    Map<String, Map<String, String>> transitionTable; // Transiciones
+    ArrayList<String> transiciones;
 
     public AutomataDePila() {
         states = new ArrayList<>();
         inputAlphabet = new ArrayList<>();
         stackAlphabet = new ArrayList<>();
-        transitionTable = new HashMap<>();
+        transiciones = new ArrayList<>();
     }
 
-    // Método para agregar una transición
-    public void addTransition(String state, String inputSymbol, String stackSymbol, String newState,
-            String newStackSymbol) {
-        if (!transitionTable.containsKey(state)) {
-            transitionTable.put(state, new HashMap<>());
+    // Método para crear las transiciones de lectura del alfabeto, estas debe: lear
+    // terminal de la cadena, sacar terminal de la pila e insertar vacio en la pila
+    public void transicionesTerminales(Set<String> terminales) {
+        transiciones.add("((q0,_,_ ),(q1,S0))");
+
+        for (String terminal : terminales) {
+            transiciones.add("((q1," + terminal + "," + terminal + "),(q1,_))");
         }
-        transitionTable.get(state).put(inputSymbol + "," + stackSymbol, newState + "," + newStackSymbol);
+    }
+
+    // Método para crear las transiciones dada las transiciones del GLC: leer vacio
+    // de la cadena, insertar no terminal en la pila y sacar la derivacion de la
+    // pila
+    public void transicionesGLC_AP(List<ProductionRule> rules) {
+        for (ProductionRule rule : rules) {
+            String nonTerminal = rule.getNonTerminal();
+            String derivation = rule.getDerivation();
+            transiciones.add("((q1,_," + nonTerminal + "),(q1," + derivation + "))");
+        }
     }
 
     // Método para imprimir el AP
@@ -32,27 +44,7 @@ public class AutomataDePila {
         System.out.println("Estado final: " + finalState);
         System.out.println("Alfabeto de entrada: " + inputAlphabet);
         System.out.println("Alfabeto de pila: " + stackAlphabet);
-        System.out.println("Tabla de transiciones: " + transitionTable);
+        System.out.println("Tabla de transiciones: " + transiciones);
     }
 
-    // Setters para configurar el autómata
-    public void setInitialState(String initialState) {
-        this.initialState = initialState;
-    }
-
-    public void setFinalState(String finalState) {
-        this.finalState = finalState;
-    }
-
-    public void addState(String state) {
-        states.add(state);
-    }
-
-    public void addInputAlphabet(String symbol) {
-        inputAlphabet.add(symbol);
-    }
-
-    public void addStackAlphabet(String symbol) {
-        stackAlphabet.add(symbol);
-    }
 }

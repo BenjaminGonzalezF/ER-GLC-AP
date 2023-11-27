@@ -8,7 +8,7 @@ public class ProductionRule {
         this.derivation = derivation;
     }
 
-    // Getters para acceso a las propiedades
+    // Getters
     public String getNonTerminal() {
         return nonTerminal;
     }

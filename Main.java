@@ -5,21 +5,36 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Ingrese la expresión regular:");
-        String expresion = scanner.nextLine();
+        // String expresion = scanner.nextLine();
+        String expresion = "((a*).(c.b))";
+        ERtoGLC erToGLC = new ERtoGLC();
+        System.out.println(expresion);
 
-        // Ejemplo de GLC
-        Set<String> nonTerminals = new HashSet<>(Arrays.asList("<S0>"));
-        Set<String> terminals = new HashSet<>(Arrays.asList("a"));
-        List<ProductionRule> rules = new ArrayList<>();
-        rules.add(new ProductionRule("<S0>", "a"));
+        ArrayList<String> listaExpresion = ERtoGLC.transformarALista(expresion);
+        erToGLC.procesarExpresion(listaExpresion);
+        erToGLC.formalizacion();
 
-        // Convertir GLC a AP
+        Set<String> nonTerminals = new HashSet<>(erToGLC.noTerminales);
+        Set<String> terminals = new HashSet<>(erToGLC.terminales);
+        List<ProductionRule> rules = formatearAReglas(erToGLC.glc);
+
         AutomataDePila ap = convertToAP(nonTerminals, terminals, rules, "<S0>");
 
-        // Imprimir el AP
         ap.printAutomata();
-
         scanner.close();
+    }
+
+    public static List<ProductionRule> formatearAReglas(ArrayList<String> glc) {
+        List<ProductionRule> productionRules = new ArrayList<>();
+
+        for (String rule : glc) {
+            rule = rule.replaceAll("[<>() ]", "");
+            String[] parts = rule.split(",");
+            ProductionRule productionRule = new ProductionRule(parts[0], parts[1]);
+            productionRules.add(productionRule);
+        }
+
+        return productionRules;
     }
 
     private static AutomataDePila convertToAP(Set<String> nonTerminals, Set<String> terminals,
@@ -33,13 +48,11 @@ public class Main {
         ap.finalState = "q1";
         ap.inputAlphabet.addAll(terminals);
         ap.stackAlphabet.addAll(nonTerminals);
-        ap.stackAlphabet.add("$"); // Símbolo inicial de la pila
 
-        // Asumiendo una estructura simple de la GLC a AP
-        for (ProductionRule rule : rules) {
-            ap.addTransition("q0", rule.derivation, "$", "q1", "$");
-        }
+        ap.transicionesTerminales(terminals);
+        ap.transicionesGLC_AP(rules);
 
         return ap;
     }
+
 }
