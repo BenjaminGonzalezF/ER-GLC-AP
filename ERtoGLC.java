@@ -165,7 +165,7 @@ public class ERtoGLC {
     }
 
     // Transforma la expresion (String)a una lista de Strings
-    private static ArrayList<String> transformarALista(String expresion) {
+    public static ArrayList<String> transformarALista(String expresion) {
         ArrayList<String> expresionLista = new ArrayList<>();
         for (int i = 0; i < expresion.length(); i++) {
             expresionLista.add(String.valueOf(expresion.charAt(i)));
@@ -173,7 +173,7 @@ public class ERtoGLC {
         return expresionLista;
     }
 
-    private void formalizacion() {
+    public void formalizacion() {
         System.out.println("GLC 1 M:");
         System.out.println("V = {" + noTerminales + "}");
         System.out.println("Sigma = {" + terminales + "}");
