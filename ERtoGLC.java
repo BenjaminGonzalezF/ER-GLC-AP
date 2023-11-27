@@ -5,6 +5,7 @@ public class ERtoGLC {
     ArrayList<String> glc = new ArrayList<>();
     ArrayList<String> noTerminales = new ArrayList<>();
     ArrayList<String> terminales = new ArrayList<>();
+    String simboloInicial = "<S0>";
 
     public static void main(String[] args) {
         ERtoGLC erToGLC = new ERtoGLC();
@@ -12,22 +13,24 @@ public class ERtoGLC {
         System.out.println(expresion);
         ArrayList<String> listaExpresion = transformarALista(expresion);
         erToGLC.procesarExpresion(listaExpresion);
+        erToGLC.formalizacion();
     }
 
     // Se reemplazan los terminales por no terminales agregando las transiciones a
     // la GLC, luego se procesan los pares de operaciones para que cada par sea un
     // nuevo nodo terminal, así considerar el orden con los parentesis
     public void procesarExpresion(ArrayList<String> expresion) {
-        noTerminales.add("S0");
-        glc.add("S0 -> S1");
+        noTerminales.add("<S0>");
+        glc.add("(" + "<" + "S0" + ">" + "," + "S1" + ")");
 
         for (int i = 0; i < expresion.size(); i++) {
             String c = expresion.get(i);
             if (!esOperador(c) && !c.equals(")") && !c.equals("(")) {
                 String noTerminalNuevo = "S" + noTerminales.size();
-                noTerminales.add(noTerminalNuevo);
+                noTerminales.add("<" + noTerminalNuevo + ">");
                 expresion.set(i, noTerminalNuevo);
-                glc.add(noTerminalNuevo + " -> " + c);
+                glc.add("(" + "<" + noTerminalNuevo + ">" + "," + c + ")");
+                terminales.add(c);
             }
         }
 
@@ -36,11 +39,14 @@ public class ERtoGLC {
                 expresion = eliminarParentesis(expresion);
             }
             expresion = operarParejas(expresion);
-            System.out.println(expresion);
-            System.out.println(glc);
+            /*
+             * System.out.println(expresion);
+             * System.out.println(glc);
+             */
         }
         glc.set(0, "S0 -> " + expresion.get(0));
-        System.out.println(glc);
+        glc.set(0, "(" + "<" + "S0" + ">" + "," + expresion.get(0) + ")");
+        /* System.out.println(glc); */
     }
 
     // Cuando encuentra un parentesis abierto pregunta si el siguiente parentesis
@@ -79,12 +85,15 @@ public class ERtoGLC {
                         String noTerminal1 = pilaNoTerminales.pop();
                         String operador = pilaOperadores.pop();
                         String noTerminalNuevo = "S" + noTerminales.size();
-                        noTerminales.add(noTerminalNuevo);
+                        noTerminales.add("<" + noTerminalNuevo + ">");
                         aplicarOperacion(noTerminal1, "", operador, noTerminalNuevo);
                         nuevaExpresion = actualizarExpresion(nuevaExpresion, noTerminal1, operador, noTerminalNuevo);
-                        System.out
-                                .println(noTerminalNuevo + "=" + noTerminal1 + " " + operador + " " + noTerminalNuevo);
-                        System.out.println(nuevaExpresion);
+                        /*
+                         * System.out
+                         * .println(noTerminalNuevo + "=" + noTerminal1 + " " + operador + " " +
+                         * noTerminalNuevo);
+                         * System.out.println(nuevaExpresion);
+                         */
 
                     }
 
@@ -96,11 +105,14 @@ public class ERtoGLC {
                         String noTerminal1 = pilaNoTerminales.pop();
                         String operador = pilaOperadores.pop();
                         String noTerminalNuevo = "S" + noTerminales.size();
-                        noTerminales.add(noTerminalNuevo);
+                        noTerminales.add("<" + noTerminalNuevo + ">");
                         aplicarOperacion(noTerminal1, noTerminal2, operador, noTerminalNuevo);
                         nuevaExpresion = actualizarExpresion(nuevaExpresion, noTerminal1, operador, noTerminalNuevo);
-                        System.out.println(noTerminalNuevo + "=" + noTerminal1 + " " + operador + " " + noTerminal2);
-                        System.out.println(nuevaExpresion);
+                        /*
+                         * System.out.println(noTerminalNuevo + "=" + noTerminal1 + " " + operador + " "
+                         * + noTerminal2);
+                         * System.out.println(nuevaExpresion);
+                         */
                     }
                 }
             } else {
@@ -117,9 +129,6 @@ public class ERtoGLC {
     // por el resultante
     private ArrayList<String> actualizarExpresion(ArrayList<String> expresion, String noTerminalInical, String operador,
             String nuevoNoTerminal) {
-
-        // Encontrar el primer noTerminalInical en la expresion y eliminar elementos
-        // siguientes
         int index = expresion.indexOf(noTerminalInical);
         expresion.set(index, nuevoNoTerminal);
         if (operador.equals("*")) {
@@ -132,26 +141,27 @@ public class ERtoGLC {
 
     }
 
-    // Comprueba si el simbolo es operador
-    public boolean esOperador(String c) {
-        return c.equals("|") || c.equals(".") || c.equals("*");
-    }
-
     // Crea la produccion de la GLC dependiendo del operador
     public void aplicarOperacion(String terminal1, String terminal2, String operador, String noTerminalNuevo) {
         switch (operador) {
             case ".":
-                glc.add(noTerminalNuevo + " -> " + terminal1 + terminal2);
+                glc.add("(" + "<" + noTerminalNuevo + ">" + "," + terminal1 + terminal2 + ")");
                 break;
             case "|":
-                glc.add(noTerminalNuevo + " -> " + terminal1);
-                glc.add(noTerminalNuevo + " -> " + terminal2);
+                glc.add("(" + "<" + noTerminalNuevo + ">" + "," + terminal1 + ")");
+                glc.add("(" + "<" + noTerminalNuevo + ">" + "," + terminal2 + ")");
                 break;
             case "*":
-                glc.add(noTerminalNuevo + " -> " + terminal1 + noTerminalNuevo);
-                glc.add(noTerminalNuevo + " -> " + "_");
+                glc.add("(" + "<" + noTerminalNuevo + ">" + "," + terminal1 + noTerminalNuevo + ")");
+                glc.add("(" + "<" + noTerminalNuevo + ">" + "," + "_" + ")");
+
                 break;
         }
+    }
+
+    // Comprueba si el simbolo es operador
+    public boolean esOperador(String c) {
+        return c.equals("|") || c.equals(".") || c.equals("*");
     }
 
     // Transforma la expresion (String)a una lista de Strings
@@ -161,6 +171,14 @@ public class ERtoGLC {
             expresionLista.add(String.valueOf(expresion.charAt(i)));
         }
         return expresionLista;
+    }
+
+    private void formalizacion() {
+        System.out.println("GLC 1 M:");
+        System.out.println("V = {" + noTerminales + "}");
+        System.out.println("Sigma = {" + terminales + "}");
+        System.out.println("R = {" + glc + "}");
+        System.out.println("S = " + simboloInicial);
     }
 
 }
