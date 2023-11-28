@@ -2,17 +2,17 @@
 import java.util.*;
 
 public class AutomataDePila {
-    List<String> states;
+    List<String> estados;
     String initialState;
     String finalState;
-    List<String> inputAlphabet;
-    List<String> stackAlphabet;
+    List<String> alfabeto;
+    List<String> alfabetoPila;
     ArrayList<String> transiciones;
 
     public AutomataDePila() {
-        states = new ArrayList<>();
-        inputAlphabet = new ArrayList<>();
-        stackAlphabet = new ArrayList<>();
+        estados = new ArrayList<>();
+        alfabeto = new ArrayList<>();
+        alfabetoPila = new ArrayList<>();
         transiciones = new ArrayList<>();
     }
 
@@ -29,22 +29,22 @@ public class AutomataDePila {
     // Método para crear las transiciones dada las transiciones del GLC: leer vacio
     // de la cadena, insertar no terminal en la pila y sacar la derivacion de la
     // pila
-    public void transicionesGLC_AP(List<ProductionRule> rules) {
-        for (ProductionRule rule : rules) {
+    public void transicionesGLC_AP(List<ReglasDeProduccion> rules) {
+        for (ReglasDeProduccion rule : rules) {
             String nonTerminal = rule.getNonTerminal();
             String derivation = rule.getDerivation();
             transiciones.add("((q1,_," + nonTerminal + "),(q1," + derivation + "))");
         }
     }
 
-    // Método para imprimir el AP
-    public void printAutomata() {
-        System.out.println("Estados: " + states);
-        System.out.println("Estado inicial: " + initialState);
-        System.out.println("Estado final: " + finalState);
-        System.out.println("Alfabeto de entrada: " + inputAlphabet);
-        System.out.println("Alfabeto de pila: " + stackAlphabet);
-        System.out.println("Tabla de transiciones: " + transiciones);
+    public void formalizacion() {
+        System.out.println("\nAP M:");
+        System.out.println("K: " + estados);
+        System.out.println("Sigma: " + alfabeto);
+        System.out.println("Gamma: " + alfabetoPila + alfabeto);
+        System.out.println("Delta: " + transiciones);
+        System.out.println("S: " + initialState);
+        System.out.println("F: " + finalState);
     }
 
 }

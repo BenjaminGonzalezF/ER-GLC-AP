@@ -2,35 +2,37 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        try {
+            Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Ingrese la expresión regular:");
-        // String expresion = scanner.nextLine();
-        String expresion = "((a*).(c.b))";
-        ERtoGLC erToGLC = new ERtoGLC();
-        System.out.println(expresion);
+            System.out.println("Ingrese la expresión regular:");
+            String expresion = scanner.nextLine();
+            ERtoGLC erToGLC = new ERtoGLC();
 
-        ArrayList<String> listaExpresion = ERtoGLC.transformarALista(expresion);
-        erToGLC.procesarExpresion(listaExpresion);
-        erToGLC.formalizacion();
+            ArrayList<String> listaExpresion = ERtoGLC.transformarALista(expresion);
+            erToGLC.procesarExpresion(listaExpresion);
+            erToGLC.formalizacion();
 
-        Set<String> nonTerminals = new HashSet<>(erToGLC.noTerminales);
-        Set<String> terminals = new HashSet<>(erToGLC.terminales);
-        List<ProductionRule> rules = formatearAReglas(erToGLC.glc);
+            Set<String> nonTerminals = new HashSet<>(erToGLC.noTerminales);
+            Set<String> terminals = new HashSet<>(erToGLC.terminales);
+            List<ReglasDeProduccion> reglas = formatearAReglas(erToGLC.glc);
 
-        AutomataDePila ap = convertToAP(nonTerminals, terminals, rules, "<S0>");
+            AutomataDePila ap = convertToAP(nonTerminals, terminals, reglas, "<S0>");
 
-        ap.printAutomata();
-        scanner.close();
+            ap.formalizacion();
+            scanner.close();
+        } catch (Exception e) {
+            System.out.println("Compruebe la escritura de la expresión regular");
+        }
     }
 
-    public static List<ProductionRule> formatearAReglas(ArrayList<String> glc) {
-        List<ProductionRule> productionRules = new ArrayList<>();
+    public static List<ReglasDeProduccion> formatearAReglas(ArrayList<String> glc) {
+        List<ReglasDeProduccion> productionRules = new ArrayList<>();
 
         for (String rule : glc) {
             rule = rule.replaceAll("[<>() ]", "");
             String[] parts = rule.split(",");
-            ProductionRule productionRule = new ProductionRule(parts[0], parts[1]);
+            ReglasDeProduccion productionRule = new ReglasDeProduccion(parts[0], parts[1]);
             productionRules.add(productionRule);
         }
 
@@ -38,16 +40,16 @@ public class Main {
     }
 
     private static AutomataDePila convertToAP(Set<String> nonTerminals, Set<String> terminals,
-            List<ProductionRule> rules, String startSymbol) {
+            List<ReglasDeProduccion> rules, String startSymbol) {
         AutomataDePila ap = new AutomataDePila();
 
         // Configurar el AP basado en la GLC
-        ap.states.add("q0");
-        ap.states.add("q1");
+        ap.estados.add("q0");
+        ap.estados.add("q1");
         ap.initialState = "q0";
         ap.finalState = "q1";
-        ap.inputAlphabet.addAll(terminals);
-        ap.stackAlphabet.addAll(nonTerminals);
+        ap.alfabeto.addAll(terminals);
+        ap.alfabetoPila.addAll(nonTerminals);
 
         ap.transicionesTerminales(terminals);
         ap.transicionesGLC_AP(rules);

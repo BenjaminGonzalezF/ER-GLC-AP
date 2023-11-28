@@ -39,14 +39,8 @@ public class ERtoGLC {
                 expresion = eliminarParentesis(expresion);
             }
             expresion = operarParejas(expresion);
-            /*
-             * System.out.println(expresion);
-             * System.out.println(glc);
-             */
         }
-        glc.set(0, "S0 -> " + expresion.get(0));
         glc.set(0, "(" + "<" + "S0" + ">" + "," + expresion.get(0) + ")");
-        /* System.out.println(glc); */
     }
 
     // Cuando encuentra un parentesis abierto pregunta si el siguiente parentesis
@@ -174,7 +168,7 @@ public class ERtoGLC {
     }
 
     public void formalizacion() {
-        System.out.println("GLC 1 M:");
+        System.out.println("\nGLC 1 M:");
         System.out.println("V = {" + noTerminales + "}");
         System.out.println("Sigma = {" + terminales + "}");
         System.out.println("R = {" + glc + "}");
